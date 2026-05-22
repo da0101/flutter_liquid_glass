@@ -1,50 +1,41 @@
-# native_glass_navbar
+# flutter_liquid_glass
 
-A Flutter plugin that brings the native iOS Liquid Glass style navigation bar to your Flutter apps.
+A Flutter plugin that renders a native iOS 26 Liquid Glass navigation bar using platform views and method channels. No uncanny valley — it's the actual native `UITabBar`.
 
-This package uses [platform views and method channels](https://docs.flutter.dev/platform-integration/ios/platform-views) to render the actual native iOS `UITabBar`. This means no more of that uncanny valley effect that you often get with custom Flutter implementations.
-
-Oh yeah, it also doesn't have any 3rd party dependencies!
-
-## **Demos** <br />
-![output](https://github.com/user-attachments/assets/d7691c1b-5eef-451d-b18f-4d118ca3e8f2)
-![output-items-bg](https://github.com/user-attachments/assets/5bbc0358-0e85-4604-89db-96eb68806053)
+Falls back gracefully to a custom Flutter widget on Android and older iOS versions.
 
 ## Features
 
-- **Native look and feel**: Probably because it is native 😉.
-- **Dark Mode & Theming**: Automatically matches system themes and uses your app's primary color.
-- **Action Button**: Add a floating action button for your main app actions.
-- **SF Symbols**: Use any [SF Symbol](https://developer.apple.com/sf-symbols/) for icons.
-- **Fallback Support**: Optionally define a fallback widget for Android or older iOS versions.
+- Native iOS 26 Liquid Glass tab bar via `UITabBar`
+- Custom icon bytes support — use any image as a tab icon
+- Action button (FAB) with custom icon bytes
+- `NativeGlassPill` — standalone pill widget for titles and labels
+- Tint color control
+- Fallback widget for Android / iOS < 26
+- Zero third-party dependencies
 
 ## Installation
 
-Add this to your package's `pubspec.yaml` file:
-
 ```yaml
 dependencies:
-    native_glass_navbar: ^1.0.2
+  flutter_liquid_glass:
+    git:
+      url: https://github.com/da0101/flutter_liquid_glass.git
+      ref: main
 ```
 
 ## Usage
-
-Import the package:
 
 ```dart
 import 'package:native_glass_navbar/native_glass_navbar.dart';
 ```
 
-### Basic Implementation
+### Basic
 
 ```dart
 NativeGlassNavBar(
   currentIndex: _currentIndex,
-  onTap: (index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  },
+  onTap: (index) => setState(() => _currentIndex = index),
   tabs: const [
     NativeGlassNavBarItem(label: 'Home', symbol: 'house'),
     NativeGlassNavBarItem(label: 'Search', symbol: 'magnifyingglass'),
@@ -53,11 +44,17 @@ NativeGlassNavBar(
 )
 ```
 
+### Custom Icon Bytes
+
+```dart
+NativeGlassNavBarItem(
+  label: 'Home',
+  iconBytes: await rootBundle.load('assets/icons/home.png')
+      .then((data) => data.buffer.asUint8List()),
+)
+```
+
 ### With Action Button
-
-You can add a action button (e.g., for a "New Post" action). Note that when an action button is present, the maximum number of tabs is 4.
-
-_yes I'm aware this is not the recommended design pattern but I like it soooooooo..._
 
 ```dart
 NativeGlassNavBar(
@@ -65,9 +62,7 @@ NativeGlassNavBar(
   onTap: (index) => setState(() => _currentIndex = index),
   actionButton: TabBarActionButton(
     symbol: 'plus',
-    onTap: () {
-      print('Action button tapped!');
-    },
+    onTap: () => print('tapped'),
   ),
   tabs: const [
     NativeGlassNavBarItem(label: 'Home', symbol: 'house'),
@@ -76,13 +71,11 @@ NativeGlassNavBar(
 )
 ```
 
-### Handling Unsupported Platforms
-
-Since this plugin relies on native iOS APIs, it will not render the glass effect on Android or older iOS versions. You can provide a `fallback` widget (like a standard `BottomNavigationBar`) for these cases.
+### Fallback for Android / older iOS
 
 ```dart
 NativeGlassNavBar(
-  // ... other properties
+  // ...
   fallback: BottomNavigationBar(
     currentIndex: _currentIndex,
     onTap: (index) => setState(() => _currentIndex = index),
@@ -98,18 +91,28 @@ NativeGlassNavBar(
 
 ### NativeGlassNavBar
 
-| Parameter      | Type                          | Description                                                                      |
-| -------------- | ----------------------------- | -------------------------------------------------------------------------------- |
-| `tabs`         | `List<NativeGlassNavBarItem>` | List of tabs to display. Max 5 (or 4 with action button).                        |
-| `currentIndex` | `int`                         | The index of the currently selected tab.                                         |
-| `onTap`        | `ValueChanged<int>`           | Callback when a tab is selected.                                                 |
-| `actionButton` | `TabBarActionButton?`         | Optional action button.                                                          |
-| `tintColor`    | `Color?`                      | Color of the selected item. Defaults to `Theme.of(context).colorScheme.primary`. |
-| `fallback`     | `Widget?`                     | Widget to display if the platform is not supported.                              |
+| Parameter | Type | Description |
+|---|---|---|
+| `tabs` | `List<NativeGlassNavBarItem>` | Tabs to display. Max 5 (4 with action button). |
+| `currentIndex` | `int` | Selected tab index. |
+| `onTap` | `ValueChanged<int>` | Tab selection callback. |
+| `actionButton` | `TabBarActionButton?` | Optional FAB. |
+| `tintColor` | `Color?` | Selected item color. Defaults to `colorScheme.primary`. |
+| `fallback` | `Widget?` | Widget shown on unsupported platforms. |
 
 ### NativeGlassNavBarItem
 
-| Parameter | Type     | Description                                                                                          |
-| --------- | -------- | ---------------------------------------------------------------------------------------------------- |
-| `label`   | `String` | Text label for the tab.                                                                              |
-| `symbol`  | `String` | [SF Symbol](https://developer.apple.com/sf-symbols/) name for the icon (e.g., 'house.fill', 'gear'). |
+| Parameter | Type | Description |
+|---|---|---|
+| `label` | `String` | Tab label. |
+| `symbol` | `String?` | SF Symbol name (e.g. `'house.fill'`). |
+| `iconBytes` | `Uint8List?` | Custom icon image bytes. Takes priority over `symbol`. |
+
+### NativeGlassPill
+
+Standalone pill-shaped label with native Liquid Glass background.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `child` | `Widget` | Content inside the pill. |
+| `width` | `double?` | Optional fixed width. |
