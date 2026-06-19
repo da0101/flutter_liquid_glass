@@ -52,6 +52,9 @@ struct TabBarConfig: Equatable {
 	/// PNG bytes for the action-button icon, if provided.
 	var actionButtonIconBytes: Data? = nil
 	var hasActionButton: Bool = false
+	/// When true, a pulsing neon halo is drawn around the action button as a
+	/// native "working" indicator. See `ActionGlowView`.
+	var actionButtonGlowing: Bool = false
 	var tintColor: UIColor = .systemBlue
 	var selectedIndex: Int = 0
 	var isDark: Bool = false
@@ -85,6 +88,10 @@ struct TabBarConfig: Equatable {
 			self.hasActionButton = !self.actionButtonSymbol.isEmpty
 		}
 
+		if let glowing = dict["actionButtonGlowing"] as? Bool {
+			self.actionButtonGlowing = glowing
+		}
+
 		if let colorInt = dict["tintColor"] as? NSNumber {
 			self.tintColor = IconResolver.uiColorFromARGB(colorInt.intValue)
 		}
@@ -109,6 +116,9 @@ class LiquidGlassTabBarController: UITabBarController, UITabBarControllerDelegat
 	private let channel: FlutterMethodChannel
 	private var config: TabBarConfig
 	private var currentAppearanceIsDark: Bool
+	/// Decorative neon halo around the action button while a job runs. Added on
+	/// top of the tab bar, never intercepts touches.
+	private let actionGlow = ActionGlowView()
 
 	init(viewId: Int64, messenger: FlutterBinaryMessenger, args: Any?) {
 		self.channel = FlutterMethodChannel(
@@ -135,6 +145,9 @@ class LiquidGlassTabBarController: UITabBarController, UITabBarControllerDelegat
 		configureAppearance()
 		performFullRebuild()
 
+		view.addSubview(actionGlow)
+		updateActionGlow()
+
 		channel.setMethodCallHandler { [weak self] call, result in
 			self?.handle(call, result: result)
 		}
@@ -143,6 +156,53 @@ class LiquidGlassTabBarController: UITabBarController, UITabBarControllerDelegat
 	override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
 		self.view.backgroundColor = .clear
+		updateActionGlow()
+	}
+
+	// MARK: - Action button glow
+
+	/// Frame of the action button (the rightmost tab item) in `view` coords.
+	/// Prefers the real tab-button subview; falls back to even-slot geometry.
+	private func actionButtonFrame() -> CGRect? {
+		guard config.hasActionButton else { return nil }
+
+		let buttons = tabBar.subviews.filter {
+			String(describing: type(of: $0)).contains("UITabBarButton")
+		}
+		if let last = buttons.sorted(by: { $0.frame.minX < $1.frame.minX }).last {
+			return tabBar.convert(last.frame, to: view)
+		}
+
+		// Fallback: action button occupies the rightmost of N evenly-sized slots.
+		let tabCount = max(config.labels.count, config.symbols.count)
+		let itemCount = tabCount + 1
+		guard itemCount > 0, tabBar.bounds.width > 0 else { return nil }
+		let slotW = tabBar.bounds.width / CGFloat(itemCount)
+		let rect = CGRect(
+			x: tabBar.bounds.width - slotW,
+			y: 0,
+			width: slotW,
+			height: tabBar.bounds.height
+		)
+		return tabBar.convert(rect, to: view)
+	}
+
+	/// Positions the glow over the action button and starts/stops it to match
+	/// `config.actionButtonGlowing`. Safe to call on every layout pass —
+	/// `ActionGlowView.startGlowing()` is idempotent.
+	private func updateActionGlow() {
+		guard config.hasActionButton,
+			config.actionButtonGlowing,
+			let frame = actionButtonFrame()
+		else {
+			actionGlow.stopGlowing()
+			return
+		}
+		let size = max(frame.width, frame.height) * 1.15
+		actionGlow.bounds = CGRect(x: 0, y: 0, width: size, height: size)
+		actionGlow.center = CGPoint(x: frame.midX, y: frame.midY)
+		view.bringSubviewToFront(actionGlow)
+		actionGlow.startGlowing()
 	}
 
 	private func configureAppearance() {
@@ -177,6 +237,7 @@ class LiquidGlassTabBarController: UITabBarController, UITabBarControllerDelegat
 			if newConfig.structuralChange(from: oldConfig) {
 				self.config = newConfig
 				performFullRebuild()  // Destructive
+				updateActionGlow()
 			} else {
 				// Light updates (in-place).
 				self.config = newConfig
@@ -195,6 +256,11 @@ class LiquidGlassTabBarController: UITabBarController, UITabBarControllerDelegat
 				// Tab icon swap (bytes only — symbols are static once mounted).
 				if oldConfig.iconBytes != newConfig.iconBytes {
 					updateTabIconsInPlace()
+				}
+
+				// Toggle the action-button glow when the flag flips.
+				if oldConfig.actionButtonGlowing != newConfig.actionButtonGlowing {
+					updateActionGlow()
 				}
 			}
 

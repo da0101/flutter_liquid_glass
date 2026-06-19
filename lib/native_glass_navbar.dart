@@ -58,11 +58,18 @@ class TabBarActionButton {
   /// The callback invoked when the action button is tapped.
   final VoidCallback onTap;
 
+  /// When true, the action button is wrapped in a soft, pulsing neon halo —
+  /// a native liquid-glass "working" indicator (e.g. while a background AI
+  /// task runs). The glow is purely decorative and never intercepts touches.
+  /// Defaults to false (resting state).
+  final bool glowing;
+
   /// Creates a new [TabBarActionButton].
   const TabBarActionButton({
     required this.onTap,
     this.symbol,
     this.iconData,
+    this.glowing = false,
   }) : assert(symbol != null || iconData != null,
             'Provide either an SF symbol name or an IconData.');
 }
@@ -220,6 +227,7 @@ class _NativeGlassNavBarState extends State<NativeGlassNavBar> {
       'actionButtonSymbol': widget.actionButton?.symbol ?? '',
       'actionButtonIconBytes': _renderedActionIcon,
       'hasActionButton': widget.actionButton != null,
+      'actionButtonGlowing': widget.actionButton?.glowing ?? false,
       'selectedIndex': widget.currentIndex,
       'isDark': Theme.of(context).brightness == Brightness.dark,
       'tintColor': widget.tintColor != null

@@ -24,4 +24,32 @@ class RunnerTests: XCTestCase {
     waitForExpectations(timeout: 1)
   }
 
+  func testActionButtonGlowingDefaultsToFalse() {
+    let config = TabBarConfig(from: ["actionButtonSymbol": "plus"])
+    XCTAssertFalse(config.actionButtonGlowing)
+  }
+
+  func testActionButtonGlowingIsParsedFromArguments() {
+    let config = TabBarConfig(from: [
+      "actionButtonSymbol": "plus",
+      "actionButtonGlowing": true,
+    ])
+    XCTAssertTrue(config.actionButtonGlowing)
+  }
+
+  func testActionButtonGlowingChangeIsNotStructural() {
+    // Toggling the glow must take the in-place light-update path, never a
+    // destructive full rebuild of the tab bar.
+    let resting = TabBarConfig(from: [
+      "symbols": ["a", "b"], "labels": ["A", "B"],
+      "actionButtonSymbol": "plus", "actionButtonGlowing": false,
+    ])
+    let glowing = TabBarConfig(from: [
+      "symbols": ["a", "b"], "labels": ["A", "B"],
+      "actionButtonSymbol": "plus", "actionButtonGlowing": true,
+    ])
+    XCTAssertFalse(glowing.structuralChange(from: resting))
+    XCTAssertNotEqual(resting, glowing)
+  }
+
 }

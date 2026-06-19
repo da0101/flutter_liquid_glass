@@ -1,3 +1,8 @@
+## 1.4.0-dev.1
+
+- Added `glowing` to `TabBarActionButton`. When true, the native action button is wrapped in a soft, pulsing neon halo (pink → purple → cyan) — a native Liquid Glass "working" indicator for background tasks (e.g. an AI generation in progress). The glow is purely decorative and never intercepts touches; toggling it takes the in-place light-update path (no tab-bar rebuild). Defaults to false.
+- iOS: new `ActionGlowView` (radial `CAGradientLayer` halo with opacity/scale pulse + colour cycle), positioned over the action button's slot and driven by the new `actionButtonGlowing` channel argument.
+
 ## 1.3.0-dev.1
 
 - New `NativeGlassPill` widget: capsule-shaped native glass badge with optional leading icon. Pass `onTap` for the iOS 26 interactive `UIButton.Configuration.glass()` (or `.prominentGlass()` via `prominent: true`); omit it for a static decoration backed by `UIVisualEffectView(.systemMaterial)`. Same `symbol` / `iconData` API as the rest of the kit.
