@@ -145,7 +145,6 @@ class LiquidGlassTabBarController: UITabBarController, UITabBarControllerDelegat
 		configureAppearance()
 		performFullRebuild()
 
-		view.addSubview(actionGlow)
 		updateActionGlow()
 
 		channel.setMethodCallHandler { [weak self] call, result in
@@ -161,47 +160,40 @@ class LiquidGlassTabBarController: UITabBarController, UITabBarControllerDelegat
 
 	// MARK: - Action button glow
 
-	/// Frame of the action button (the rightmost tab item) in `view` coords.
-	/// Prefers the real tab-button subview; falls back to even-slot geometry.
-	private func actionButtonFrame() -> CGRect? {
+	/// The action button's ACTUAL view (the rightmost tab-bar button), if the
+	/// bar has laid out. We attach the glow to this view directly so it is
+	/// always centred in the button's own coordinate space — no frame guessing,
+	/// which is what made the earlier separately-positioned glow drift.
+	private func actionButtonView() -> UIView? {
 		guard config.hasActionButton else { return nil }
-
 		let buttons = tabBar.subviews.filter {
 			String(describing: type(of: $0)).contains("UITabBarButton")
 		}
-		if let last = buttons.sorted(by: { $0.frame.minX < $1.frame.minX }).last {
-			return tabBar.convert(last.frame, to: view)
-		}
-
-		// Fallback: action button occupies the rightmost of N evenly-sized slots.
-		let tabCount = max(config.labels.count, config.symbols.count)
-		let itemCount = tabCount + 1
-		guard itemCount > 0, tabBar.bounds.width > 0 else { return nil }
-		let slotW = tabBar.bounds.width / CGFloat(itemCount)
-		let rect = CGRect(
-			x: tabBar.bounds.width - slotW,
-			y: 0,
-			width: slotW,
-			height: tabBar.bounds.height
-		)
-		return tabBar.convert(rect, to: view)
+		return buttons.sorted(by: { $0.frame.minX < $1.frame.minX }).last
 	}
 
-	/// Positions the glow over the action button and starts/stops it to match
+	/// Attaches the glow as a subview of the real action button (behind its
+	/// icon, expanded slightly into a halo) and starts/stops it to match
 	/// `config.actionButtonGlowing`. Safe to call on every layout pass —
 	/// `ActionGlowView.startGlowing()` is idempotent.
 	private func updateActionGlow() {
 		guard config.hasActionButton,
 			config.actionButtonGlowing,
-			let frame = actionButtonFrame()
+			let button = actionButtonView()
 		else {
 			actionGlow.stopGlowing()
+			actionGlow.removeFromSuperview()
 			return
 		}
-		let size = max(frame.width, frame.height) * 1.15
-		actionGlow.bounds = CGRect(x: 0, y: 0, width: size, height: size)
-		actionGlow.center = CGPoint(x: frame.midX, y: frame.midY)
-		view.bringSubviewToFront(actionGlow)
+
+		// Re-parent onto the button (behind its content) and let the glow bleed
+		// past the button bounds.
+		if actionGlow.superview !== button {
+			actionGlow.removeFromSuperview()
+			button.insertSubview(actionGlow, at: 0)
+		}
+		button.clipsToBounds = false
+		actionGlow.frame = button.bounds.insetBy(dx: -6, dy: -6)
 		actionGlow.startGlowing()
 	}
 

@@ -1,3 +1,7 @@
+## 1.4.0-dev.2
+
+- Fixed action-button glow positioning. The glow is now attached as a subview of the **real action-button view** (in its own coordinate space) instead of a separately-positioned overlay that guessed the button's frame — so the halo is always centred on the button, including the iOS 26 floating action button.
+
 ## 1.4.0-dev.1
 
 - Added `glowing` to `TabBarActionButton`. When true, the native action button is wrapped in a soft, pulsing neon halo (pink → purple → cyan) — a native Liquid Glass "working" indicator for background tasks (e.g. an AI generation in progress). The glow is purely decorative and never intercepts touches; toggling it takes the in-place light-update path (no tab-bar rebuild). Defaults to false.
