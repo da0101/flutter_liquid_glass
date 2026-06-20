@@ -161,14 +161,34 @@ class NativeGlassButtonPlatformView: NSObject, FlutterPlatformView {
 	func view() -> UIView { hostView }
 
 	private func applyConfig() {
-		let icon = IconResolver.resolve(symbol: config.symbol, bytes: config.iconBytes)
+		var icon = IconResolver.resolve(symbol: config.symbol, bytes: config.iconBytes)
+
+		// When a tint colour is requested the Flutter rasteriser has ALREADY
+		// baked that colour into the glyph PNG. The resolver returns it as
+		// `.alwaysTemplate`, which strips the baked colour back to a monochrome
+		// alpha mask — and the glass button (or any tint) then repaints that mask
+		// the system content colour (white on dark). Rendering it `.alwaysOriginal`
+		// instead keeps the baked terracotta so NOTHING can re-tint it. This is
+		// the reliable, version-independent way to show a specifically-coloured
+		// icon (e.g. the liked-heart) in a glass button. Untinted icons keep the
+		// template path so they still pick up the native `.label`/white tint.
+		if config.iconColor != nil {
+			icon = icon?.withRenderingMode(.alwaysOriginal)
+		}
 
 		if usesNativeGlass, #available(iOS 26.0, *) {
 			var btnConfig = button.configuration ?? UIButton.Configuration.glass()
 			btnConfig.image = icon
-			btnConfig.baseForegroundColor = config.iconColor
+			// Clear the glass `imageColorTransformer` too, so it can't recolour the
+			// image even in edge cases; the `.alwaysOriginal` image above is the
+			// primary guarantee.
+			btnConfig.imageColorTransformer = nil
 			button.configuration = btnConfig
+			button.setNeedsUpdateConfiguration()
 		} else {
+			// Colored icons are `.alwaysOriginal` (show their baked colour and
+			// ignore tintColor); untinted ones stay template and pick up tintColor
+			// exactly as before.
 			button.tintColor = config.iconColor
 			button.setImage(icon, for: .normal)
 		}

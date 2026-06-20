@@ -80,7 +80,17 @@ class _NativeGlassButtonState extends State<NativeGlassButton> {
     // Render at 3× display size to match Swift's `scale: 3.0` decoder, so
     // a 20pt display icon (default ~half the 40pt button) reads crisply.
     final px = (widget.size * 0.5) * 3;
-    final bytes = await rasteriseIconData(iconData, size: px);
+    // Bake the requested tint into the glyph itself. The native glass button
+    // configuration overrides the foreground colour of template images, so a
+    // colour set only via the native tint can be lost; baking it makes the
+    // tint reliable on every iOS version. Defaults to white when no tint is
+    // requested, preserving the existing white-glyph behaviour for callers
+    // that rely on the native `.label`/white tint.
+    final bytes = await rasteriseIconData(
+      iconData,
+      size: px,
+      color: widget.iconColor ?? Colors.white,
+    );
     if (!mounted) return;
     setState(() {
       _renderedIcon = bytes;

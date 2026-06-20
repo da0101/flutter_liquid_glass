@@ -75,8 +75,16 @@ class TabBarActionButton {
 }
 
 /// Rasterises an [IconData] to a transparent PNG suitable for use as a
-/// UIKit template image. Renders the glyph in solid white; UIKit applies
-/// the bar's tint colour at runtime.
+/// UIKit template image. Renders the glyph in [color] (solid white by
+/// default); UIKit then applies the host control's tint at runtime.
+///
+/// Passing a non-white [color] bakes that colour directly into the glyph.
+/// This is the robust path for tints that the native glass button
+/// configuration would otherwise override (e.g. `UIButton.Configuration
+/// .glass()` recolors template images to the system glass content colour
+/// regardless of `baseForegroundColor`). With the colour baked in and the
+/// native image transformer cleared, the requested tint survives on every
+/// iOS version and every render path.
 ///
 /// The default [size] of 75 pixels matches the standard 25 pt tab bar icon
 /// at @3x rendering — the Swift side decodes with `scale: 3.0`. Override
@@ -87,6 +95,7 @@ class TabBarActionButton {
 Future<Uint8List> rasteriseIconData(
   IconData icon, {
   double size = 75,
+  Color color = Colors.white,
 }) async {
   final recorder = ui.PictureRecorder();
   final canvas = Canvas(recorder);
@@ -97,7 +106,7 @@ Future<Uint8List> rasteriseIconData(
         fontFamily: icon.fontFamily,
         package: icon.fontPackage,
         fontSize: size,
-        color: Colors.white,
+        color: color,
       ),
     ),
     textDirection: TextDirection.ltr,
