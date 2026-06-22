@@ -20,10 +20,9 @@ import 'package:native_glass_navbar/native_glass_navbar.dart';
 /// Sizing is content-driven by default — the pill grows to fit the text
 /// and icon. Wrap in a parent constraint if you need a fixed size.
 class NativeGlassPill extends StatefulWidget {
-  /// Creates a new [NativeGlassPill]. [text] is required.
   const NativeGlassPill({
     super.key,
-    required this.text,
+    this.text = '',
     this.iconData,
     this.symbol,
     this.onTap,
@@ -34,7 +33,7 @@ class NativeGlassPill extends StatefulWidget {
     this.width,
   });
 
-  /// Label text rendered inside the pill.
+  /// Label text rendered inside the pill. Defaults to empty string for icon-only pills.
   final String text;
 
   /// Optional Flutter [IconData] (Lucide, Material, etc.) rendered before
@@ -122,6 +121,9 @@ class _NativeGlassPillState extends State<NativeGlassPill> {
   /// UiKitView reports 0 intrinsic width, so we measure on the Flutter side.
   /// UIButton.Configuration.glass() uses .body (17 sp); add 20 px each side.
   double _measurePillWidth(BuildContext context) {
+    // Icon-only pill → perfect circle.
+    if (widget.text.isEmpty) return widget.height;
+
     final painter = TextPainter(
       text: TextSpan(
         text: widget.text,
