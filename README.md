@@ -27,7 +27,7 @@ dependencies:
 ## Usage
 
 ```dart
-import 'package:native_glass_navbar/native_glass_navbar.dart';
+import 'package:flutter_liquid_glass/flutter_liquid_glass.dart';
 ```
 
 ### Basic

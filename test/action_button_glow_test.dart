@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:native_glass_navbar/native_glass_navbar.dart';
+import 'package:flutter_liquid_glass/flutter_liquid_glass.dart';
 
 void main() {
   group('TabBarActionButton.glowing', () {

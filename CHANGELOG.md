@@ -40,4 +40,4 @@
 
 ## 1.0.0
 
-- Initial release of native_glass_navbar Flutter plugin
+- Initial release of flutter_liquid_glass Flutter plugin

@@ -1,9 +1,9 @@
 #
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
-# Run `pod lib lint native_glass_navbar.podspec` to validate before publishing.
+# Run `pod lib lint flutter_liquid_glass.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'native_glass_navbar'
+  s.name             = 'flutter_liquid_glass'
   s.version          = '0.0.1'
   s.summary          = 'A new Flutter plugin project.'
   s.description      = <<-DESC
@@ -25,5 +25,5 @@ A new Flutter plugin project.
   # required reason APIs, update the PrivacyInfo.xcprivacy file to describe your
   # plugin's privacy impact, and then uncomment this line. For more information,
   # see https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
-  # s.resource_bundles = {'native_glass_navbar_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
+  # s.resource_bundles = {'flutter_liquid_glass_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
 end

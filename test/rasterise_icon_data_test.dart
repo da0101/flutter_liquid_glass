@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:native_glass_navbar/native_glass_navbar.dart';
+import 'package:flutter_liquid_glass/flutter_liquid_glass.dart';
 
 void main() {
   // A glyph from the bundled Material icon font so the rasteriser has a real

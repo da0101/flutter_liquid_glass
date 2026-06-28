@@ -4,7 +4,7 @@ import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:native_glass_navbar/native_glass_navbar.dart';
+import 'package:flutter_liquid_glass/flutter_liquid_glass.dart';
 
 /// A circular icon button rendered natively, with a Liquid Glass backdrop
 /// on iOS 26+ and an auto-upgraded system-material blur on earlier iOS.
