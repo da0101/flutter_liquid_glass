@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:native_glass_navbar/native_glass_navbar.dart';
+import 'package:flutter_liquid_glass/flutter_liquid_glass.dart';
 
 class DemoPage extends StatefulWidget {
   const DemoPage({super.key});
@@ -149,7 +149,7 @@ class _DemoPageState extends State<DemoPage> {
                 tab.label,
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
               ),
-              subtitle: Text(tab.symbol),
+              subtitle: Text(tab.symbol ?? 'Custom icon'),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 spacing: 8.0,

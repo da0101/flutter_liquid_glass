@@ -1,8 +1,10 @@
 /// A Flutter plugin that provides a native liquid glass navigation bar for iOS.
-library flutter_liquid_glass;
+library;
 
 export 'liquid_glass_helper.dart';
 export 'native_glass_button.dart';
+export 'native_glass_container.dart';
+export 'native_glass_bottom_sheet.dart';
 export 'native_glass_pill.dart';
 
 import 'dart:async';

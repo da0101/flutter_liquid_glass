@@ -10,6 +10,8 @@ Falls back gracefully to a custom Flutter widget on Android and older iOS versio
 - Custom icon bytes support — use any image as a tab icon
 - Action button (FAB) with custom icon bytes
 - `NativeGlassPill` — standalone pill widget for titles and labels
+- `NativeGlassContainer` — native glass behind arbitrary live Flutter content
+- `showNativeGlassBottomSheet` — native glass modal with arbitrary Flutter content
 - Tint color control
 - Fallback widget for Android / iOS < 26
 - Zero third-party dependencies
@@ -87,6 +89,50 @@ NativeGlassNavBar(
 )
 ```
 
+### Rich content container
+
+Keep artwork, text, animations, and nested controls in Flutter while UIKit
+paints the real iOS 26 Liquid Glass background:
+
+```dart
+NativeGlassContainer(
+  borderRadius: 24,
+  padding: const EdgeInsets.all(12),
+  tintColor: Colors.black.withValues(alpha: 0.18),
+  fallbackBuilder: (context, child) => Card(child: child),
+  child: Row(
+    children: [
+      const FlutterLogo(size: 40),
+      const Expanded(child: Text('Now Playing')),
+      IconButton(onPressed: togglePlayback, icon: const Icon(Icons.pause)),
+      IconButton(onPressed: openMixer, icon: const Icon(Icons.tune)),
+    ],
+  ),
+)
+```
+
+The native surface is decorative and never intercepts gestures or semantics;
+all nested Flutter controls remain independently interactive.
+
+### Liquid Glass bottom sheets
+
+Use the presenter when Flutter should retain the modal route, scrolling,
+state, and all nested controls while iOS 26 supplies the native material:
+
+```dart
+await showNativeGlassBottomSheet<void>(
+  context: context,
+  useRootNavigator: true,
+  heightFactor: 0.86,
+  tintColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+  builder: (_) => const MyMixerContent(),
+);
+```
+
+The sheet rounds only its top corners, owns one bottom safe-area inset, and
+falls back to a themed Material sheet on Android and older iOS. Supply
+`fallbackBuilder` to preserve an app-specific blur or surface treatment.
+
 ## API Reference
 
 ### NativeGlassNavBar
@@ -116,3 +162,21 @@ Standalone pill-shaped label with native Liquid Glass background.
 |---|---|---|
 | `child` | `Widget` | Content inside the pill. |
 | `width` | `double?` | Optional fixed width. |
+
+### NativeGlassContainer
+
+| Parameter | Type | Description |
+|---|---|---|
+| `child` | `Widget` | Arbitrary live Flutter content rendered above the glass. |
+| `padding` | `EdgeInsetsGeometry` | Inner content padding. |
+| `borderRadius` | `double` | Uniform native glass corner radius. |
+| `maskedCorners` | `Set<NativeGlassCorner>` | Native corners that receive the radius. |
+| `style` | `NativeGlassStyle` | iOS 26 regular or clear glass material. |
+| `tintColor` | `Color?` | Optional tint applied to the native glass. |
+| `fallbackBuilder` | `NativeGlassFallbackBuilder?` | Android/older-iOS surface builder; receives the padded child. |
+
+### NativeGlassBottomSheet
+
+Use `showNativeGlassBottomSheet` for the standard modal route, or place
+`NativeGlassBottomSheet` inside a custom route. Both retain live Flutter child
+content and use native iOS 26 material with a Flutter fallback.

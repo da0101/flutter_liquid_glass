@@ -1,6 +1,6 @@
 name: flutter_liquid_glass
 description: "A Flutter plugin that brings the native iOS Liquid Glass style navigation bar to your Flutter apps."
-version: 1.4.0-dev.2
+version: 1.5.0-dev.1
 homepage: "https://github.com/da0101/flutter_liquid_glass"
 
 environment:

@@ -1,3 +1,13 @@
+## 1.5.0-dev.1
+
+- Added `NativeGlassContainer`, a noninteractive native iOS 26 Liquid Glass
+  background for arbitrary live Flutter content. Nested Flutter buttons,
+  images, text, animations, and semantics remain fully interactive, with a
+  caller-owned Android/older-iOS fallback.
+- Added `showNativeGlassBottomSheet` and `NativeGlassBottomSheet` for modal or
+  custom-route sheets whose content stays in Flutter while iOS 26 paints the
+  material natively. Native surfaces now support explicit corner masks.
+
 ## 1.4.0-dev.2
 
 - Fixed action-button glow positioning. The glow is now attached as a subview of the **real action-button view** (in its own coordinate space) instead of a separately-positioned overlay that guessed the button's frame — so the halo is always centred on the button, including the iOS 26 floating action button.

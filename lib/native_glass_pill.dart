@@ -20,6 +20,7 @@ import 'package:flutter_liquid_glass/flutter_liquid_glass.dart';
 /// Sizing is content-driven by default — the pill grows to fit the text
 /// and icon. Wrap in a parent constraint if you need a fixed size.
 class NativeGlassPill extends StatefulWidget {
+  /// Creates a native glass pill with optional icon, label, and interaction.
   const NativeGlassPill({
     super.key,
     this.text = '',
