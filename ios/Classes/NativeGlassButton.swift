@@ -161,6 +161,17 @@ class NativeGlassButtonPlatformView: NSObject, FlutterPlatformView {
 	func view() -> UIView { hostView }
 
 	private func applyConfig() {
+		// ⛔ PIN THE TONE. `UIButton.Configuration.glass()` adapts its material
+		// to whatever sits behind it, so a dark-tone control turns WHITE the
+		// moment a bright photo scrolls under it — and a light-on-glass glyph
+		// disappears with it (owner screenshot, 2026-08-30: a profile button
+		// over a sunlit living room). `overrideUserInterfaceStyle` is what
+		// NativeGlassSurface and NativeTabBar already use for exactly this;
+		// the button and pill were the two that never got it.
+		let interfaceStyle: UIUserInterfaceStyle = config.isDark ? .dark : .light
+		hostView.overrideUserInterfaceStyle = interfaceStyle
+		button.overrideUserInterfaceStyle = interfaceStyle
+
 		var icon = IconResolver.resolve(symbol: config.symbol, bytes: config.iconBytes)
 
 		// When a tint colour is requested the Flutter rasteriser has ALREADY

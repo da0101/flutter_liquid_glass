@@ -157,6 +157,16 @@ class NativeGlassPillPlatformView: NSObject, FlutterPlatformView {
 	}
 
 	private func applyConfig() {
+		// ⛔ PIN THE TONE — see the note in NativeGlassButton.applyConfig().
+		// The interactive iOS 26 path is glass that adapts to its backdrop;
+		// the static path is a PillBlurView that already picked its material
+		// from `isDark`, so this only has to cover the button.
+		if let button = button {
+			let interfaceStyle: UIUserInterfaceStyle = config.isDark ? .dark : .light
+			hostView.overrideUserInterfaceStyle = interfaceStyle
+			button.overrideUserInterfaceStyle = interfaceStyle
+		}
+
 		let icon = IconResolver.resolve(symbol: config.symbol, bytes: config.iconBytes)
 
 		if let button = button, #available(iOS 26.0, *) {
