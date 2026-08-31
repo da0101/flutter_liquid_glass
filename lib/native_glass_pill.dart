@@ -32,6 +32,7 @@ class NativeGlassPill extends StatefulWidget {
     this.fallback,
     this.height = 28,
     this.width,
+    this.iconLeading = false,
   });
 
   /// Label text rendered inside the pill. Defaults to empty string for icon-only pills.
@@ -58,6 +59,14 @@ class NativeGlassPill extends StatefulWidget {
 
   /// Widget shown on non-iOS platforms or when Liquid Glass isn't supported.
   final Widget? fallback;
+
+  /// Puts the icon BEFORE the label instead of after it.
+  ///
+  /// Defaults to false because trailing is this pill's established look
+  /// ("See all ›", "Compare ⇄"), and flipping it globally would move every
+  /// existing call site. Leading suits a pill whose icon is the SUBJECT and
+  /// the text is its value — a gem with a credit count, for instance.
+  final bool iconLeading;
 
   /// Height of the pill in logical pixels. Defaults to 28 (label/badge size).
   /// Pass 44 to match the standard iOS button touch target.
@@ -105,6 +114,7 @@ class _NativeGlassPillState extends State<NativeGlassPill> {
   Map<String, dynamic> _createParams() {
     return {
       'text': widget.text,
+      'iconLeading': widget.iconLeading,
       'symbol': widget.symbol ?? '',
       'iconBytes': _renderedIcon,
       'foregroundColor': widget.foregroundColor?.toARGB32(),

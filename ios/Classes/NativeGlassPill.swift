@@ -34,6 +34,7 @@ struct GlassPillConfig: Equatable {
 	var prominent: Bool = false
 	var interactive: Bool = false
 	var isDark: Bool = false
+	var iconLeading: Bool = false
 
 	init(from dict: [String: Any]?) {
 		guard let dict = dict else { return }
@@ -46,6 +47,7 @@ struct GlassPillConfig: Equatable {
 		if let p = dict["prominent"] as? Bool { self.prominent = p }
 		if let i = dict["interactive"] as? Bool { self.interactive = i }
 		if let d = dict["isDark"] as? Bool { self.isDark = d }
+		if let l = dict["iconLeading"] as? Bool { self.iconLeading = l }
 	}
 }
 
@@ -139,7 +141,9 @@ class NativeGlassPillPlatformView: NSObject, FlutterPlatformView {
 		label.adjustsFontForContentSizeCategory = true
 		self.label = label
 
-		let stack = UIStackView(arrangedSubviews: [label, imageView])
+		let stack = UIStackView(
+			arrangedSubviews: config.iconLeading ? [imageView, label] : [label, imageView]
+		)
 		stack.axis = .horizontal
 		stack.spacing = 6
 		stack.alignment = .center
@@ -172,7 +176,10 @@ class NativeGlassPillPlatformView: NSObject, FlutterPlatformView {
 		if let button = button, #available(iOS 26.0, *) {
 			var btnConfig = button.configuration ?? UIButton.Configuration.glass()
 			btnConfig.image = icon
-			btnConfig.imagePlacement = .trailing
+			// Leading when the icon is the SUBJECT and the label its value
+			// (a gem with a credit count); trailing stays the default so no
+			// existing pill moves.
+			btnConfig.imagePlacement = config.iconLeading ? .leading : .trailing
 			btnConfig.title = config.text
 			btnConfig.baseForegroundColor = config.foregroundColor
 			button.configuration = btnConfig
